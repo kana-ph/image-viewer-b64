@@ -3,6 +3,8 @@ package ph.kana.b64image;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import static javafx.scene.control.ButtonBar.ButtonData;
+
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextArea;
@@ -27,6 +29,8 @@ import java.util.Optional;
 public class MainFormController {
 
 	private FileService fileService = FileService.getInstance();
+	private static final long FILE_SIZE_LIMIT = 5_242_880;
+	private static final String DIALOG_TITLE = "ImageViewer-B64";
 
 	@FXML
 	private TextArea base64TextArea;
@@ -65,15 +69,13 @@ public class MainFormController {
 		if (selectedText.isEmpty()) {
 			copyAllText();
 		} else {
-			base64TextArea.copy();
+			copyText(selectedText);
 		}
 	}
 
 	@FXML
 	public void copyAllText() {
-		ClipboardContent content = new ClipboardContent();
-		content.putString(base64TextArea.getText());
-		Clipboard.getSystemClipboard().setContent(content);
+		copyText(base64TextArea.getText());
 	}
 
 	@FXML
@@ -90,7 +92,7 @@ public class MainFormController {
 	@FXML
 	public void showAbout() {
 		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.setTitle("About ImageViewer-B64");
+		dialog.setTitle("About " + DIALOG_TITLE);
 		dialog.setContentText("I'm open-source!\nCreated by @_kana0011");
 		dialog.initModality(Modality.APPLICATION_MODAL);
 
@@ -127,19 +129,25 @@ public class MainFormController {
 			File tempFile = fileService.createTempFile(inputStream);
 			fileService.openToDesktop(tempFile);
 		} catch (FileOperationException e) {
-			e.printStackTrace(System.err);
+			handleError(e);
 		}
 	}
 
 	private void convertToBase64(File file) {
+		boolean fileTooLarge = (file.length() >= FILE_SIZE_LIMIT);
 		try {
 			byte[] bytes = fileService.readBytes(file);
 			String base64 = Base64
 				.getEncoder()
 				.encodeToString(bytes);
-			base64TextArea.setText(base64);
+
+			if (fileTooLarge) {
+				throw new FileOperationException("File too large! Limit: 5 MiB");
+			} else {
+				base64TextArea.setText(base64);
+			}
 		} catch (FileOperationException e) {
-			e.printStackTrace(System.err);
+			handleError(e);
 		}
 	}
 
@@ -148,7 +156,26 @@ public class MainFormController {
 			URI uri = new URI("https://github.com/kana0011/image-viewer-b64");
 			fileService.openToDesktop(uri);
 		} catch (URISyntaxException e) {
-			e.printStackTrace(System.err);
+			handleError(e);
 		}
+	}
+
+	private void handleError(Exception e) {
+		e.printStackTrace(System.err);
+
+		Alert warningDialog = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.CLOSE);
+		warningDialog.setTitle("Error - " + DIALOG_TITLE);
+		warningDialog
+			.getDialogPane()
+			.getButtonTypes();
+		warningDialog.showAndWait();
+	}
+
+	private void copyText(String text) {
+		ClipboardContent content = new ClipboardContent();
+		content.putString(text);
+		Clipboard
+			.getSystemClipboard()
+			.setContent(content);
 	}
 }

@@ -5,15 +5,18 @@
       <options>
         <option name="appClass" value="ph.kana.b64image.Main" />
         <option name="description" value="" />
+        <option name="height" value="600" />
         <option name="htmlPlaceholderId" value="" />
-        <option name="title" value="" />
-        <option name="vendor" value="" />
+        <option name="title" value="Image Viewer-B64" />
+        <option name="vendor" value="@_kana0011" />
         <option name="version" value="" />
+        <option name="width" value="650" />
       </options>
     </properties>
     <root id="root">
       <element id="archive" name="JavaFXApp.jar">
         <element id="module-output" name="image-viewer-b64" />
+        <element id="library" level="project" name="org.apache.tika:tika-core:1.14" />
       </element>
     </root>
   </artifact>

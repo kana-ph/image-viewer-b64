@@ -4,6 +4,7 @@ import org.apache.tika.Tika;
 
 import java.awt.*;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.TreeMap;
@@ -52,6 +53,16 @@ public class FileService {
 				desktop.open(file);
 			} catch (IOException e) { e.printStackTrace(System.err); }
 		}, "file-launcher-thread")
+			.start();
+	}
+
+	public void openToDesktop(URI uri) {
+		new Thread(() -> {
+			try {
+				Desktop desktop = Desktop.getDesktop();
+				desktop.browse(uri);
+			} catch (IOException e) { e.printStackTrace(System.err); }
+		}, "uri-launcher-thread")
 			.start();
 	}
 

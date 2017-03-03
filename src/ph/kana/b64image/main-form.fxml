@@ -14,45 +14,49 @@
    <children>
       <MenuBar layoutX="145.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#openFileAsBase64" text="Open File as Base64">
+                  <MenuItem onAction="#openFileAsBase64" text="Open File as Base64">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#closeApp" text="Close">
+              <MenuItem onAction="#closeApp" text="Close">
                      <accelerator>
                         <KeyCodeCombination alt="DOWN" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu text="Edit">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#copySelectedText" text="Copy">
+              <MenuItem onAction="#copySelectedText" text="Copy">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#pasteText" text="Paste">
+                  <MenuItem onAction="#pasteText" text="Paste">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="V" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#copyAllText" text="Copy All Text">
+                  <MenuItem onAction="#copyAllText" text="Copy All Text">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#pasteAllText" text="Paste and Replace">
+                  <MenuItem onAction="#pasteAllText" text="Paste and Replace">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="V" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem text="About">
+                  <accelerator>
+                      <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+              </MenuItem>
             </items>
           </Menu>
         </menus>

@@ -4,6 +4,7 @@ import org.apache.tika.Tika;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -52,6 +53,14 @@ public class FileService {
 			} catch (IOException e) { e.printStackTrace(System.err); }
 		}, "file-launcher-thread")
 			.start();
+	}
+
+	public byte[] readBytes(File file) throws FileOperationException {
+		try {
+			return Files.readAllBytes(file.toPath());
+		} catch (IOException e) {
+			throw new FileOperationException("Unable to convert file.", e);
+		}
 	}
 
 	private void validateContentType(String contentType) throws FileOperationException {

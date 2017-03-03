@@ -43,6 +43,7 @@ public class MainFormController {
 	@FXML
 	public void openFileAsBase64() {
 		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open File");
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		Window window = rootPane
 			.getScene()

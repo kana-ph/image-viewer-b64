@@ -12,6 +12,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-form.fxml"));
         Parent root = loader.load();
+        setUserAgentStylesheet(STYLESHEET_MODENA);
         primaryStage.setTitle("kana0011/image-viewer-b64");
         primaryStage.setScene(new Scene(root, 650, 600));
         primaryStage.show();

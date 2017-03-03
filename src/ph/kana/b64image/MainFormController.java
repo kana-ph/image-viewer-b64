@@ -3,6 +3,8 @@ package ph.kana.b64image;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -47,6 +49,34 @@ public class MainFormController {
 	public void closeApp() {
 		Platform.exit();
 		System.exit(0);
+	}
+
+	@FXML
+	public void copySelectedText() {
+		String selectedText = base64TextArea.getSelectedText();
+		if (selectedText.isEmpty()) {
+			copyAllText();
+		} else {
+			base64TextArea.copy();
+		}
+	}
+
+	@FXML
+	public void copyAllText() {
+		ClipboardContent content = new ClipboardContent();
+		content.putString(base64TextArea.getText());
+		Clipboard.getSystemClipboard().setContent(content);
+	}
+
+	@FXML
+	public void pasteText() {
+		base64TextArea.paste();
+	}
+
+	@FXML
+	public void pasteAllText() {
+		base64TextArea.setText("");
+		base64TextArea.paste();
 	}
 
 	private Optional<InputStream> parseFileData() {

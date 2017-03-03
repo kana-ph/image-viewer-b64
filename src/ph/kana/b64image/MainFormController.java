@@ -82,7 +82,7 @@ public class MainFormController {
 	private Optional<InputStream> parseFileData() {
 		String base64 = base64TextArea
 			.getText()
-			.replaceAll("\n", "");
+			.replaceAll("[\\s]+", "");
 		if (!base64.isEmpty()) {
 			byte[] bytes = Base64
 				.getDecoder()

@@ -82,12 +82,12 @@ public class MainFormController {
 
 	@FXML
 	public void pasteText() {
-		startUpdateTextTask(base64TextArea::paste);
+		startTaskWithUiLock(base64TextArea::paste);
 	}
 
 	@FXML
 	public void pasteAllText() {
-		startUpdateTextTask(() -> {
+		startTaskWithUiLock(() -> {
 			base64TextArea.setText("");
 			base64TextArea.paste();
 		});
@@ -150,7 +150,7 @@ public class MainFormController {
 				String base64 = Base64
 					.getEncoder()
 					.encodeToString(bytes);
-				startUpdateTextTask(() -> base64TextArea.setText(base64));
+				startTaskWithUiLock(() -> base64TextArea.setText(base64));
 			}
 		} catch (FileOperationException e) {
 			handleError(e);
@@ -190,7 +190,7 @@ public class MainFormController {
 		return ((double) size) / 1_000_000;
 	}
 
-	private void startUpdateTextTask(Runnable task) {
+	private void startTaskWithUiLock(Runnable task) {
 		Task updateTextTask = new Task<Void>() {
 			@Override
 			public Void call() {

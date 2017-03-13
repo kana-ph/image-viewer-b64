@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import ph.kana.b64image.dialog.DialogUtils;
 import ph.kana.b64image.file.FileOperationException;
 import ph.kana.b64image.file.FileService;
 
@@ -48,14 +49,11 @@ public class MainFormController {
 
 	@FXML
 	public void openFileAsBase64() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open File");
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		Window window = rootPane
 			.getScene()
 			.getWindow();
-		Optional
-			.ofNullable(fileChooser.showOpenDialog(window))
+		DialogUtils
+			.openFile(window, "Open File to Convert")
 			.ifPresent(this::convertToBase64);
 	}
 

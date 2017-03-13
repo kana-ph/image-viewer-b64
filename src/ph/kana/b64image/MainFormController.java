@@ -11,6 +11,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import ph.kana.b64image.dialog.DialogService;
+import ph.kana.b64image.dialog.DndInitializer;
 import ph.kana.b64image.file.FileOperationException;
 import ph.kana.b64image.file.FileService;
 
@@ -24,7 +25,9 @@ public class MainFormController {
 
 	private FileService fileService = FileService.getInstance();
 	private DialogService dialogService = DialogService.getInstance();
+
 	private static final long FILE_SIZE_30MB_LIMIT = 30_000_000;
+	private static final long B64_FILE_SIZE_100MB_LIMIT = 100_000_000;
 
 	@FXML private TextArea base64TextArea;
 
@@ -34,6 +37,13 @@ public class MainFormController {
 	@FXML private Menu fileMenu;
 	@FXML private Menu editMenu;
 	@FXML private Button decodeButton;
+
+	public void initialize() {
+		DndInitializer dndInitializer = DndInitializer
+			.withFileAction(this::openDroppedFile);
+		rootPane.setOnDragOver(dndInitializer::dragOverEvent);
+		rootPane.setOnDragDropped(dndInitializer::dragDroppedEvent);
+	}
 
 	@FXML
 	public void openBase64Image() {
@@ -46,6 +56,13 @@ public class MainFormController {
 		dialogService
 			.showOpenRegularFileDialog(getWindow())
 			.ifPresent(this::convertToBase64);
+	}
+
+	@FXML
+	public void openBase64File() {
+		dialogService
+			.showOpenBase64FileDialog(getWindow())
+			.ifPresent(this::showBase64File);
 	}
 
 	@FXML
@@ -137,6 +154,25 @@ public class MainFormController {
 		}
 	}
 
+	private void showBase64File(File file) {
+		try {
+			long fileSize = file.length();
+			boolean fileTooLarge = (fileSize >= B64_FILE_SIZE_100MB_LIMIT);
+
+			if (fileTooLarge) {
+				String message = String.format("Base64 file larger than 100 MB!\nGiven=%.2f MB", convertToMb(fileSize));
+				throw new FileOperationException(message);
+			} else {
+				byte[] bytes = fileService.readBytes(file);
+				String base64 = new String(bytes)
+					.replaceAll("[\\s]+", "");
+				startTaskWithUiLock(() -> base64TextArea.setText(base64));
+			}
+		} catch (FileOperationException e) {
+			dialogService.showErrorDialog(getWindow(), e);
+		}
+	}
+
 	private void copyText(String text) {
 		ClipboardContent content = new ClipboardContent();
 		content.putString(text);
@@ -178,5 +214,17 @@ public class MainFormController {
 		decodeButton
 			.disableProperty()
 			.bind(booleanProperty);
+	}
+
+	private void openDroppedFile(File file) {
+		try {
+			if (fileService.validBase64File(file)) {
+				showBase64File(file);
+			} else {
+				convertToBase64(file);
+			}
+		} catch (FileOperationException e) {
+			dialogService.showErrorDialog(getWindow(), e);
+		}
 	}
 }

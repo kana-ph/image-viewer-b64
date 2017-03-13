@@ -4,32 +4,26 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import static javafx.scene.control.ButtonBar.ButtonData;
 
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Window;
-import ph.kana.b64image.dialog.DialogUtils;
+import ph.kana.b64image.dialog.DialogService;
 import ph.kana.b64image.file.FileOperationException;
 import ph.kana.b64image.file.FileService;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
 
 public class MainFormController {
 
 	private FileService fileService = FileService.getInstance();
-	private static final String DIALOG_TITLE = "ImageViewer-B64";
+	private DialogService dialogService = DialogService.getInstance();
 	private static final long FILE_SIZE_30MB_LIMIT = 30_000_000;
 
 	@FXML private TextArea base64TextArea;
@@ -49,11 +43,8 @@ public class MainFormController {
 
 	@FXML
 	public void openFileAsBase64() {
-		Window window = rootPane
-			.getScene()
-			.getWindow();
-		DialogUtils
-			.openFile(window, "Open File to Convert")
+		dialogService
+			.showOpenRegularFileDialog(getWindow())
 			.ifPresent(this::convertToBase64);
 	}
 
@@ -93,22 +84,13 @@ public class MainFormController {
 
 	@FXML
 	public void showAbout() {
-		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.setTitle("About " + DIALOG_TITLE);
-		dialog.setContentText("I'm open-source!\nCreated by @_kana0011");
-		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialogService.showAboutDialog(getWindow());
+	}
 
-		ButtonType githubButton = new ButtonType("View at Github", ButtonData.OK_DONE);
-		List<ButtonType> buttons = dialog
-			.getDialogPane()
-			.getButtonTypes();
-		buttons.add(githubButton);
-		buttons.add(new ButtonType("Close", ButtonData.CANCEL_CLOSE));
-
-		dialog
-			.showAndWait()
-			.filter(githubButton::equals)
-			.ifPresent(b -> openGithub());
+	private Window getWindow() {
+		return rootPane
+			.getScene()
+			.getWindow();
 	}
 
 	private Optional<InputStream> parseFileData() {
@@ -131,7 +113,7 @@ public class MainFormController {
 			File tempFile = fileService.createTempFile(inputStream);
 			fileService.openToDesktop(tempFile);
 		} catch (FileOperationException e) {
-			handleError(e);
+			dialogService.showErrorDialog(getWindow(), e);
 		}
 	}
 
@@ -151,29 +133,8 @@ public class MainFormController {
 				startTaskWithUiLock(() -> base64TextArea.setText(base64));
 			}
 		} catch (FileOperationException e) {
-			handleError(e);
+			dialogService.showErrorDialog(getWindow(), e);
 		}
-	}
-
-	private void openGithub() {
-		try {
-			URI uri = new URI("https://github.com/kana0011/image-viewer-b64");
-			fileService.openToDesktop(uri);
-		} catch (URISyntaxException e) {
-			handleError(e);
-		}
-	}
-
-	private void handleError(Exception e) {
-		e.printStackTrace(System.err);
-
-		Alert warningDialog = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.CLOSE);
-		warningDialog.setTitle("Error - " + DIALOG_TITLE);
-		warningDialog.initModality(Modality.APPLICATION_MODAL);
-		warningDialog
-			.getDialogPane()
-			.getButtonTypes();
-		warningDialog.showAndWait();
 	}
 
 	private void copyText(String text) {

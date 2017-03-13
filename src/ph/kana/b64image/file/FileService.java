@@ -51,16 +51,6 @@ public class FileService {
 			.start();
 	}
 
-	public void openToDesktop(URI uri) {
-		new Thread(() -> {
-			try {
-				Desktop desktop = Desktop.getDesktop();
-				desktop.browse(uri);
-			} catch (IOException e) { e.printStackTrace(System.err); }
-		}, "uri-launcher-thread")
-			.start();
-	}
-
 	public byte[] readBytes(File file) throws FileOperationException {
 		try {
 			return Files.readAllBytes(file.toPath());

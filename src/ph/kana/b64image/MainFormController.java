@@ -171,6 +171,7 @@ public class MainFormController {
 
 		Alert warningDialog = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.CLOSE);
 		warningDialog.setTitle("Error - " + DIALOG_TITLE);
+		warningDialog.initModality(Modality.APPLICATION_MODAL);
 		warningDialog
 			.getDialogPane()
 			.getButtonTypes();

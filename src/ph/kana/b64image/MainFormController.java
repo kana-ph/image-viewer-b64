@@ -1,13 +1,12 @@
 package ph.kana.b64image;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import static javafx.scene.control.ButtonBar.ButtonData;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
@@ -29,14 +28,17 @@ import java.util.Optional;
 public class MainFormController {
 
 	private FileService fileService = FileService.getInstance();
-	private static final long FILE_SIZE_LIMIT = 5_242_880;
 	private static final String DIALOG_TITLE = "ImageViewer-B64";
+	private static final long FILE_SIZE_30MB_LIMIT = 30_000_000;
 
-	@FXML
-	private TextArea base64TextArea;
+	@FXML private TextArea base64TextArea;
 
-	@FXML
-	private Pane rootPane;
+	@FXML private Pane rootPane;
+
+	@FXML private ProgressIndicator updateTextProgress;
+	@FXML private Menu fileMenu;
+	@FXML private Menu editMenu;
+	@FXML private Button decodeButton;
 
 	@FXML
 	public void openBase64Image() {
@@ -52,9 +54,9 @@ public class MainFormController {
 		Window window = rootPane
 			.getScene()
 			.getWindow();
-		Optional<File> file = Optional
-			.ofNullable(fileChooser.showOpenDialog(window));
-		file.ifPresent(this::convertToBase64);
+		Optional
+			.ofNullable(fileChooser.showOpenDialog(window))
+			.ifPresent(this::convertToBase64);
 	}
 
 	@FXML
@@ -80,13 +82,15 @@ public class MainFormController {
 
 	@FXML
 	public void pasteText() {
-		base64TextArea.paste();
+		startUpdateTextTask(base64TextArea::paste);
 	}
 
 	@FXML
 	public void pasteAllText() {
-		base64TextArea.setText("");
-		base64TextArea.paste();
+		startUpdateTextTask(() -> {
+			base64TextArea.setText("");
+			base64TextArea.paste();
+		});
 	}
 
 	@FXML
@@ -96,7 +100,7 @@ public class MainFormController {
 		dialog.setContentText("I'm open-source!\nCreated by @_kana0011");
 		dialog.initModality(Modality.APPLICATION_MODAL);
 
-		ButtonType githubButton = new ButtonType("View Github", ButtonData.OK_DONE);
+		ButtonType githubButton = new ButtonType("View at Github", ButtonData.OK_DONE);
 		List<ButtonType> buttons = dialog
 			.getDialogPane()
 			.getButtonTypes();
@@ -134,17 +138,19 @@ public class MainFormController {
 	}
 
 	private void convertToBase64(File file) {
-		boolean fileTooLarge = (file.length() >= FILE_SIZE_LIMIT);
 		try {
-			byte[] bytes = fileService.readBytes(file);
-			String base64 = Base64
-				.getEncoder()
-				.encodeToString(bytes);
+			long fileSize = file.length();
+			boolean fileTooLarge = (fileSize >= FILE_SIZE_30MB_LIMIT);
 
 			if (fileTooLarge) {
-				throw new FileOperationException("File too large! Limit: 5 MiB");
+				String message = String.format("Input file larger than 30 MB!\nGiven=%.2f MB", convertToMb(fileSize));
+				throw new FileOperationException(message);
 			} else {
-				base64TextArea.setText(base64);
+				byte[] bytes = fileService.readBytes(file);
+				String base64 = Base64
+					.getEncoder()
+					.encodeToString(bytes);
+				startUpdateTextTask(() -> base64TextArea.setText(base64));
 			}
 		} catch (FileOperationException e) {
 			handleError(e);
@@ -177,5 +183,40 @@ public class MainFormController {
 		Clipboard
 			.getSystemClipboard()
 			.setContent(content);
+	}
+
+	private double convertToMb(long size) {
+		return ((double) size) / 1_000_000;
+	}
+
+	private void startUpdateTextTask(Runnable task) {
+		Task updateTextTask = new Task<Void>() {
+			@Override
+			public Void call() {
+				task.run();
+				return null;
+			}
+		};
+		bindLocks(updateTextTask.runningProperty());
+		new Thread(updateTextTask, "update-text-thread")
+			.start();
+	}
+
+	private void bindLocks(ReadOnlyBooleanProperty booleanProperty) {
+		updateTextProgress
+			.visibleProperty()
+			.bind(booleanProperty);
+		base64TextArea
+			.disableProperty()
+			.bind(booleanProperty);
+		fileMenu
+			.disableProperty()
+			.bind(booleanProperty);
+		editMenu
+			.disableProperty()
+			.bind(booleanProperty);
+		decodeButton
+			.disableProperty()
+			.bind(booleanProperty);
 	}
 }

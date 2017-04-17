@@ -144,10 +144,12 @@ public class MainFormController {
 	private void convertToBase64(File file) {
 		try {
 			long fileSize = file.length();
-			boolean fileTooLarge = (fileSize >= FileSizeLimit.INPUT.getValue());
+			long sizeLimit = FileSizeLimit.INPUT.getValue();
+			boolean fileTooLarge = (fileSize >= sizeLimit);
 
 			if (fileTooLarge) {
-				String message = String.format("Input file larger than 30 MB!\nGiven=%.2f MB", convertToMb(fileSize));
+				String message = String.format("Input file larger than %.2f MB!\nGiven=%.2f MB",
+					convertToMb(sizeLimit), convertToMb(fileSize));
 				throw new FileOperationException(message);
 			} else {
 				byte[] bytes = fileService.readBytes(file);
@@ -164,10 +166,12 @@ public class MainFormController {
 	private void showBase64File(File file) {
 		try {
 			long fileSize = file.length();
-			boolean fileTooLarge = (fileSize >= FileSizeLimit.BASE64.getValue());
+			long sizeLimit = FileSizeLimit.BASE64.getValue();
+			boolean fileTooLarge = (fileSize >= sizeLimit);
 
 			if (fileTooLarge) {
-				String message = String.format("Base64 file larger than 100 MB!\nGiven=%.2f MB", convertToMb(fileSize));
+				String message = String.format("Base64 file larger than %.2f MB!\nGiven=%.2f MB",
+					convertToMb(sizeLimit), convertToMb(fileSize));
 				throw new FileOperationException(message);
 			} else {
 				byte[] bytes = fileService.readBytes(file);

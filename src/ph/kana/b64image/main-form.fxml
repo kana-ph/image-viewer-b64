@@ -17,6 +17,8 @@
         <menus>
           <Menu fx:id="fileMenu" text="File">
             <items>
+                  <MenuItem onAction="#identify" text="Identify Base64" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem onAction="#openBase64File" text="Open Base64 File">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />

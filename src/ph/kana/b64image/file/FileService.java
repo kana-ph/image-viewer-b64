@@ -1,16 +1,27 @@
 package ph.kana.b64image.file;
 
 import org.apache.tika.config.TikaConfig;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.SAXException;
 
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class FileService {
@@ -76,6 +87,19 @@ public class FileService {
 		}
 	}
 
+	public Map<String, String> identifyFile(InputStream inputStream) throws FileOperationException {
+		BodyContentHandler handler = new BodyContentHandler((int) FileSizeLimit.INPUT.getValue());
+		AutoDetectParser parser = new AutoDetectParser();
+		Metadata metadata = new Metadata();
+
+		try {
+			parser.parse(inputStream, handler, metadata);
+			return buildFileInfo(metadata);
+		} catch (IOException | SAXException | TikaException e) {
+			throw new FileOperationException("Failed to identify Base64.", e);
+		}
+	}
+
 	private File writeToFile(final File file, InputStream inputStream) throws IOException {
 		try (OutputStream outputStream = new FileOutputStream(file)) {
 			for (int i = inputStream.read(); i != -1; i = inputStream.read()) {
@@ -84,5 +108,19 @@ public class FileService {
 			outputStream.flush();
 		}
 		return file;
+	}
+
+	private Map<String, String> buildFileInfo(Metadata metadata) {
+		String[] names = metadata.names();
+		Arrays.sort(names);
+		return Arrays.stream(names)
+			.collect(metadataMapper(metadata));
+	}
+
+	private Collector<String, ?, Map<String, String>> metadataMapper(Metadata metadata) {
+		Function<String, String> keyMapper = String::toString;
+		Function<String, String> valueMapper = metadata::get;
+		BinaryOperator<String> mergeFunction = (a, b) -> b;
+		return Collectors.toMap(keyMapper, valueMapper, mergeFunction, LinkedHashMap::new);
 	}
 }

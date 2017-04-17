@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public final class DialogService {
@@ -91,6 +92,22 @@ public final class DialogService {
 		warningDialog.showAndWait();
 	}
 
+	public void showFileInfo(Window parent, Map<String, String> fileInfo) {
+		Dialog<ButtonType> dialog = new Dialog<>();
+		dialog.initOwner(parent);
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.setTitle(DIALOG_TITLE + " - File Identification");
+
+		String dialogContent = formatFileInfo(fileInfo);
+		dialog.setContentText(dialogContent);
+		List<ButtonType> buttons = dialog
+			.getDialogPane()
+			.getButtonTypes();
+		buttons.add(new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE));
+
+		dialog.showAndWait();
+	}
+
 	private void openGithub() throws URISyntaxException {
 		URI uri = new URI("https://github.com/kana0011/image-viewer-b64");
 		openInBrowser(uri);
@@ -104,5 +121,15 @@ public final class DialogService {
 			} catch (IOException e) { e.printStackTrace(System.err); }
 		}, "web-browser-launcher-thread")
 			.start();
+	}
+
+	private String formatFileInfo(Map<String, String> fileInfo) {
+		StringBuilder message = new StringBuilder();
+		fileInfo
+			.entrySet()
+			.stream()
+			.map(e -> String.format("%s: %s\n", e.getKey(), e.getValue()))
+			.forEach(message::append);
+		return message.toString();
 	}
 }

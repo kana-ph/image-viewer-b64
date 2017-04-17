@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import ph.kana.b64image.dialog.DialogService;
 import ph.kana.b64image.dialog.DndInitializer;
+import ph.kana.b64image.file.FileSizeLimit;
 import ph.kana.b64image.file.FileOperationException;
 import ph.kana.b64image.file.FileService;
 
@@ -19,15 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
 
 public class MainFormController {
 
 	private FileService fileService = FileService.getInstance();
 	private DialogService dialogService = DialogService.getInstance();
-
-	private static final long FILE_SIZE_30MB_LIMIT = 30_000_000;
-	private static final long B64_FILE_SIZE_100MB_LIMIT = 100_000_000;
 
 	@FXML private TextArea base64TextArea;
 
@@ -49,6 +48,12 @@ public class MainFormController {
 	public void openBase64Image() {
 		parseFileData()
 			.ifPresent(this::openToDesktop);
+	}
+
+	@FXML
+	public void identify() {
+		parseFileData()
+			.ifPresent(this::showFileInfo);
 	}
 
 	@FXML
@@ -137,7 +142,7 @@ public class MainFormController {
 	private void convertToBase64(File file) {
 		try {
 			long fileSize = file.length();
-			boolean fileTooLarge = (fileSize >= FILE_SIZE_30MB_LIMIT);
+			boolean fileTooLarge = (fileSize >= FileSizeLimit.INPUT.getValue());
 
 			if (fileTooLarge) {
 				String message = String.format("Input file larger than 30 MB!\nGiven=%.2f MB", convertToMb(fileSize));
@@ -157,7 +162,7 @@ public class MainFormController {
 	private void showBase64File(File file) {
 		try {
 			long fileSize = file.length();
-			boolean fileTooLarge = (fileSize >= B64_FILE_SIZE_100MB_LIMIT);
+			boolean fileTooLarge = (fileSize >= FileSizeLimit.BASE64.getValue());
 
 			if (fileTooLarge) {
 				String message = String.format("Base64 file larger than 100 MB!\nGiven=%.2f MB", convertToMb(fileSize));
@@ -223,6 +228,15 @@ public class MainFormController {
 			} else {
 				convertToBase64(file);
 			}
+		} catch (FileOperationException e) {
+			dialogService.showErrorDialog(getWindow(), e);
+		}
+	}
+
+	private void showFileInfo(InputStream inputStream) {
+		try {
+			Map<String, String> fileInfo = fileService.identifyFile(inputStream);
+			dialogService.showFileInfo(getWindow(), fileInfo);
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);
 		}

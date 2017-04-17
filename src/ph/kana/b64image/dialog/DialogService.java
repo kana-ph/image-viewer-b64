@@ -60,29 +60,24 @@ public final class DialogService {
 	}
 
 	public void showAboutDialog(Window parent) {
-		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.initOwner(parent);
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.setTitle("About: " + DIALOG_TITLE);
-		dialog.setContentText("I'm open-source!\nCreated by @_kana0011");
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/ph/kana/b64image/about-dialog.fxml"));
+		try {
+			Parent root = loader.load();
 
-		ButtonType githubButton = new ButtonType("View at Github", ButtonBar.ButtonData.OK_DONE);
-		List<ButtonType> buttons = dialog
-			.getDialogPane()
-			.getButtonTypes();
-		buttons.add(githubButton);
-		buttons.add(new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE));
+			Stage dialog = new Stage();
+			dialog.initStyle(StageStyle.UNIFIED);
+			dialog.initModality(Modality.APPLICATION_MODAL);
+			dialog.initOwner(parent);
 
-		dialog
-			.showAndWait()
-			.filter(githubButton::equals)
-			.ifPresent(b -> {
-				try {
-					openGithub();
-				} catch (URISyntaxException e) {
-					showErrorDialog(parent, e);
-				}
-			});
+			dialog.setTitle("About: " + DIALOG_TITLE);
+			dialog.setScene(new Scene(root));
+			dialog.sizeToScene();
+			dialog.setResizable(false);
+
+			dialog.show();
+		} catch (IOException e) {
+			showErrorDialog(parent, e);
+		}
 	}
 
 	public void showErrorDialog(Window parent, Exception e) {
@@ -120,30 +115,5 @@ public final class DialogService {
 		} catch (IOException e) {
 			showErrorDialog(parent, e);
 		}
-	}
-
-	private void openGithub() throws URISyntaxException {
-		URI uri = new URI("https://github.com/kana0011/image-viewer-b64");
-		openInBrowser(uri);
-	}
-
-	private void openInBrowser(URI uri) {
-		new Thread(() -> {
-			try {
-				Desktop desktop = Desktop.getDesktop();
-				desktop.browse(uri);
-			} catch (IOException e) { e.printStackTrace(System.err); }
-		}, "web-browser-launcher-thread")
-			.start();
-	}
-
-	private String formatFileInfo(Map<String, String> fileInfo) {
-		StringBuilder message = new StringBuilder();
-		fileInfo
-			.entrySet()
-			.stream()
-			.map(e -> String.format("%s: %s\n", e.getKey(), e.getValue()))
-			.forEach(message::append);
-		return message.toString();
 	}
 }

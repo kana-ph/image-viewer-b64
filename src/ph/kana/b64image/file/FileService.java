@@ -15,13 +15,8 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class FileService {
@@ -87,7 +82,7 @@ public class FileService {
 		}
 	}
 
-	public Map<String, String> identifyFile(InputStream inputStream) throws FileOperationException {
+	public List<FileMetadata> identifyFile(InputStream inputStream) throws FileOperationException {
 		BodyContentHandler handler = new BodyContentHandler((int) FileSizeLimit.INPUT.getValue());
 		AutoDetectParser parser = new AutoDetectParser();
 		Metadata metadata = new Metadata();
@@ -110,17 +105,16 @@ public class FileService {
 		return file;
 	}
 
-	private Map<String, String> buildFileInfo(Metadata metadata) {
+	private List<FileMetadata> buildFileInfo(Metadata metadata) {
 		String[] names = metadata.names();
 		Arrays.sort(names);
 		return Arrays.stream(names)
-			.collect(metadataMapper(metadata));
-	}
-
-	private Collector<String, ?, Map<String, String>> metadataMapper(Metadata metadata) {
-		Function<String, String> keyMapper = String::toString;
-		Function<String, String> valueMapper = metadata::get;
-		BinaryOperator<String> mergeFunction = (a, b) -> b;
-		return Collectors.toMap(keyMapper, valueMapper, mergeFunction, LinkedHashMap::new);
+			.map(name -> {
+				FileMetadata fileMetadata = new FileMetadata();
+				fileMetadata.setKey(name);
+				fileMetadata.setValue(metadata.get(name));
+				return  fileMetadata;
+			})
+			.collect(Collectors.toList());
 	}
 }

@@ -1,14 +1,20 @@
 package ph.kana.b64image.dialog;
 
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.stage.FileChooser;
+import javafx.stage.*;
+
 import static javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Modality;
+
 import javafx.stage.Window;
+import ph.kana.b64image.MetadataDialogController;
+import ph.kana.b64image.file.FileMetadata;
 
 import java.awt.*;
 import java.io.File;
@@ -92,20 +98,28 @@ public final class DialogService {
 		warningDialog.showAndWait();
 	}
 
-	public void showFileInfo(Window parent, Map<String, String> fileInfo) {
-		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.initOwner(parent);
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.setTitle(DIALOG_TITLE + " - File Identification");
+	public void showFileInfo(Window parent, List<FileMetadata> fileInfo) {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/ph/kana/b64image/metadata-dialog.fxml"));
+		try {
+			Parent root = loader.load();
 
-		String dialogContent = formatFileInfo(fileInfo);
-		dialog.setContentText(dialogContent);
-		List<ButtonType> buttons = dialog
-			.getDialogPane()
-			.getButtonTypes();
-		buttons.add(new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE));
+			Stage dialog = new Stage();
+			dialog.initStyle(StageStyle.UNIFIED);
+			dialog.initModality(Modality.APPLICATION_MODAL);
+			dialog.initOwner(parent);
 
-		dialog.showAndWait();
+			dialog.setTitle(DIALOG_TITLE + " - File Identification");
+			dialog.setScene(new Scene(root));
+			dialog.sizeToScene();
+			dialog.setResizable(false);
+
+			MetadataDialogController dialogController = loader.getController();
+			dialogController.setMetadata(fileInfo);
+
+			dialog.show();
+		} catch (IOException e) {
+			showErrorDialog(parent, e);
+		}
 	}
 
 	private void openGithub() throws URISyntaxException {

@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import ph.kana.b64image.dialog.DialogService;
 import ph.kana.b64image.dialog.DndInitializer;
+import ph.kana.b64image.file.FileMetadata;
 import ph.kana.b64image.file.FileSizeLimit;
 import ph.kana.b64image.file.FileOperationException;
 import ph.kana.b64image.file.FileService;
@@ -20,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -235,7 +237,7 @@ public class MainFormController {
 
 	private void showFileInfo(InputStream inputStream) {
 		try {
-			Map<String, String> fileInfo = fileService.identifyFile(inputStream);
+			List<FileMetadata> fileInfo = fileService.identifyFile(inputStream);
 			dialogService.showFileInfo(getWindow(), fileInfo);
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);

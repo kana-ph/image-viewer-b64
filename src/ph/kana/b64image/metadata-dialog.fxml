@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ph.kana.b64image.MetadataDialogController">
+   <children>
+      <TableView fx:id="infoTable" editable="true" layoutX="48.0" layoutY="92.0" prefHeight="200.0" prefWidth="304.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+        <columns>
+          <TableColumn editable="false" maxWidth="300.0" minWidth="100.0" prefWidth="270.0" text="Key" />
+          <TableColumn editable="false" maxWidth="500.0" minWidth="100.0" prefWidth="260.0" text="Value" />
+        </columns>
+      </TableView>
+      <Button layoutX="244.0" layoutY="448.0" mnemonicParsing="false" onAction="#closeWindow" text="Close" AnchorPane.bottomAnchor="10.0" />
+   </children>
+</AnchorPane>

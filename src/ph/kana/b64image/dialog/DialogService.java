@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public final class DialogService {
 	private static DialogService instance = new DialogService();
@@ -60,24 +61,11 @@ public final class DialogService {
 	}
 
 	public void showAboutDialog(Window parent) {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/ph/kana/b64image/about-dialog.fxml"));
-		try {
-			Parent root = loader.load();
+		String fxmlFile = "about-dialog";
+		String title = "About: " + DIALOG_TITLE;
 
-			Stage dialog = new Stage();
-			dialog.initStyle(StageStyle.UNIFIED);
-			dialog.initModality(Modality.APPLICATION_MODAL);
-			dialog.initOwner(parent);
-
-			dialog.setTitle("About: " + DIALOG_TITLE);
-			dialog.setScene(new Scene(root));
-			dialog.sizeToScene();
-			dialog.setResizable(false);
-
-			dialog.show();
-		} catch (IOException e) {
-			showErrorDialog(parent, e);
-		}
+		Stage aboutDialog = createDialog(fxmlFile, title, parent, c -> {});
+		aboutDialog.showAndWait();
 	}
 
 	public void showErrorDialog(Window parent, Exception e) {
@@ -94,7 +82,17 @@ public final class DialogService {
 	}
 
 	public void showFileInfo(Window parent, List<FileMetadata> fileInfo) {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/ph/kana/b64image/metadata-dialog.fxml"));
+		String fxmlFile = "metadata-dialog";
+		String title = DIALOG_TITLE + " - File Identification";
+		Consumer<MetadataDialogController> initialize = controller -> controller.setMetadata(fileInfo);
+
+		Stage metadataDialog = createDialog(fxmlFile, title, parent, initialize);
+		metadataDialog.showAndWait();
+	}
+
+	private <C> Stage createDialog(String fxmlFile, String title, Window parent, Consumer<C> controllerAction) {
+		String path = String.format("/ph/kana/b64image/%s.fxml", fxmlFile);
+		FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
 		try {
 			Parent root = loader.load();
 
@@ -103,17 +101,18 @@ public final class DialogService {
 			dialog.initModality(Modality.APPLICATION_MODAL);
 			dialog.initOwner(parent);
 
-			dialog.setTitle(DIALOG_TITLE + " - File Identification");
+			dialog.setTitle(title);
 			dialog.setScene(new Scene(root));
 			dialog.sizeToScene();
 			dialog.setResizable(false);
 
-			MetadataDialogController dialogController = loader.getController();
-			dialogController.setMetadata(fileInfo);
+			C dialogController = loader.getController();
+			controllerAction.accept(dialogController);
 
-			dialog.show();
+			return dialog;
 		} catch (IOException e) {
 			showErrorDialog(parent, e);
 		}
+		return null;
 	}
 }

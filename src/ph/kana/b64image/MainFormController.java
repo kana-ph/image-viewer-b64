@@ -25,14 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class MainFormController {
+public class MainFormController extends AbstractController {
 
 	private FileService fileService = FileService.getInstance();
 	private DialogService dialogService = DialogService.getInstance();
 
 	@FXML private TextArea base64TextArea;
-
-	@FXML private Pane rootPane;
 
 	@FXML private ProgressIndicator updateTextProgress;
 	@FXML private Menu fileMenu;
@@ -109,12 +107,6 @@ public class MainFormController {
 	@FXML
 	public void showAbout() {
 		dialogService.showAboutDialog(getWindow());
-	}
-
-	private Window getWindow() {
-		return rootPane
-			.getScene()
-			.getWindow();
 	}
 
 	private Optional<InputStream> parseFileData() {

@@ -20,7 +20,7 @@ public class DndInitializer {
 
 	private final Consumer<File> afterDragAction;
 
-	public DndInitializer(Consumer<File> afterDragAction) {
+	private DndInitializer(Consumer<File> afterDragAction) {
 		this.afterDragAction = afterDragAction;
 	}
 
@@ -45,6 +45,7 @@ public class DndInitializer {
 				.getFiles()
 				.stream()
 				.findFirst()
+				.filter(File::isFile)
 				.ifPresent(afterDragAction);
 		}
 		dragEvent.setDropCompleted(true);

@@ -118,11 +118,14 @@ public class MainFormController extends AbstractController {
 			.getText()
 			.replaceAll("[\\s]+", "");
 		if (!base64.isEmpty()) {
-			byte[] bytes = Base64
-				.getDecoder()
-				.decode(base64);
-			return Optional
-				.of(new ByteArrayInputStream(bytes));
+			try {
+				byte[] bytes = fileService.decodeBase64(base64);
+				return Optional
+					.of(new ByteArrayInputStream(bytes));
+			} catch (FileOperationException e) {
+				dialogService.showErrorDialog(getWindow(), e);
+				return Optional.empty();
+			}
 		} else {
 			return Optional.empty();
 		}

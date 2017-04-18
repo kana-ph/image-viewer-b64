@@ -16,6 +16,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -67,14 +68,10 @@ public class FileService {
 			MimeType mimeType = determineContentType(inputStream);
 
 			if (base64Type.equals(mimeType.getName())) {
-				Pattern base64Pattern = Pattern
-					.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
 				Tika tika = new Tika();
 				String fileContent = tika.parseToString(inputStream, new Metadata());
 
-				return base64Pattern
-					.matcher(fileContent.trim())
-					.matches();
+				return validBase64(fileContent.trim());
 			}
 			return false;
 		} catch (IOException | TikaException e) {
@@ -92,6 +89,16 @@ public class FileService {
 			return buildFileInfo(metadata);
 		} catch (IOException | SAXException | TikaException e) {
 			throw new FileOperationException("Failed to identify Base64.", e);
+		}
+	}
+
+	public byte[] decodeBase64(String base64) throws FileOperationException {
+		if (validBase64(base64)) {
+			return Base64
+				.getDecoder()
+				.decode(base64);
+		} else {
+			throw new FileOperationException("Invalid Base64!");
 		}
 	}
 
@@ -127,5 +134,13 @@ public class FileService {
 			.detect(inputStream, new Metadata());
 		return mimeRepository
 			.forName(mediaType.toString());
+	}
+
+	private boolean validBase64(String base64) {
+		Pattern base64Pattern = Pattern
+			.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+		return base64Pattern
+			.matcher(base64)
+			.matches();
 	}
 }

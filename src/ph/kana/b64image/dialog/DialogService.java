@@ -75,9 +75,6 @@ public final class DialogService {
 		warningDialog.initOwner(parent);
 		warningDialog.initModality(Modality.APPLICATION_MODAL);
 		warningDialog.setTitle(DIALOG_TITLE + " - Error!");
-		warningDialog
-			.getDialogPane()
-			.getButtonTypes();
 		warningDialog.showAndWait();
 	}
 

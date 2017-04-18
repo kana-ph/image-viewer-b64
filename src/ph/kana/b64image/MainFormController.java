@@ -86,7 +86,6 @@ public class MainFormController extends AbstractController {
 		} else {
 			copyText(selectedText);
 		}
-		showMessage("Copy!");
 	}
 
 	@FXML
@@ -98,7 +97,6 @@ public class MainFormController extends AbstractController {
 	@FXML
 	public void pasteText() {
 		startTaskWithUiLock(base64TextArea::paste);
-		showMessage("Paste!");
 	}
 
 	@FXML

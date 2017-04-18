@@ -1,5 +1,6 @@
 package ph.kana.b64image;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.concurrent.Task;
@@ -10,6 +11,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import ph.kana.b64image.dialog.DialogService;
 import ph.kana.b64image.dialog.DndInitializer;
 import ph.kana.b64image.file.FileMetadata;
@@ -33,6 +35,7 @@ public class MainFormController extends AbstractController {
 	@FXML private TextArea base64TextArea;
 
 	@FXML private ProgressIndicator updateTextProgress;
+	@FXML private Label messageLabel;
 	@FXML private Menu fileMenu;
 	@FXML private Menu editMenu;
 	@FXML private Button decodeButton;
@@ -46,12 +49,14 @@ public class MainFormController extends AbstractController {
 
 	@FXML
 	public void openBase64Image() {
+		showMessage("Opening Base64 file to desktop...");
 		parseFileData()
 			.ifPresent(this::openToDesktop);
 	}
 
 	@FXML
 	public void identify() {
+		showMessage("Identifying Base64 file...");
 		parseFileData()
 			.ifPresent(this::showFileInfo);
 	}
@@ -89,6 +94,7 @@ public class MainFormController extends AbstractController {
 	@FXML
 	public void copyAllText() {
 		copyText(base64TextArea.getText());
+		showMessage("All text copied to clipboard!");
 	}
 
 	@FXML
@@ -102,6 +108,7 @@ public class MainFormController extends AbstractController {
 			base64TextArea.setText("");
 			base64TextArea.paste();
 		});
+		showMessage("All text replaced from clipboard!");
 	}
 
 	@FXML
@@ -149,6 +156,7 @@ public class MainFormController extends AbstractController {
 					.getEncoder()
 					.encodeToString(bytes);
 				startTaskWithUiLock(() -> base64TextArea.setText(base64));
+				showMessage(String.format("Converted to Base64: %s", file.getName()));
 			}
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);
@@ -170,6 +178,7 @@ public class MainFormController extends AbstractController {
 				String base64 = new String(bytes)
 					.replaceAll("[\\s]+", "");
 				startTaskWithUiLock(() -> base64TextArea.setText(base64));
+				showMessage(String.format("Opened Base64 text file: %s", file.getName()));
 			}
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);
@@ -238,5 +247,18 @@ public class MainFormController extends AbstractController {
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);
 		}
+	}
+
+	private void showMessage(String message) {
+		messageLabel.setText(message);
+		messageLabel.setOpacity(1.0);
+
+		FadeTransition fadeTransition = new FadeTransition(Duration.millis(200.0), messageLabel);
+		fadeTransition.setDelay(Duration.millis(3000.0));
+		fadeTransition.setFromValue(1.0);
+		fadeTransition.setToValue(0.0);
+		fadeTransition.setCycleCount(1);
+		fadeTransition.setAutoReverse(false);
+		fadeTransition.play();
 	}
 }

@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact name="image-viewer-b64-SA:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/jar/SA</output-path>
+    <output-path>$PROJECT_DIR$/out/artifacts/jar/image-viewer-b64-SA</output-path>
     <root id="root">
       <element id="archive" name="image-viewer-b64.jar">
         <element id="module-output" name="image-viewer-b64" />

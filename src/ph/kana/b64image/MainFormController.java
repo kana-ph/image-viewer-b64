@@ -153,7 +153,7 @@ public class MainFormController extends AbstractController {
 					.getEncoder()
 					.encodeToString(bytes);
 				startTaskWithUiLock(() -> base64TextArea.setText(base64));
-				showMessage(String.format("Converted to Base64: %s", file.getName()));
+				showMessage(String.format("Converted to Base64: '%s'", file.getAbsolutePath()));
 			}
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);
@@ -175,7 +175,7 @@ public class MainFormController extends AbstractController {
 				String base64 = new String(bytes)
 					.replaceAll("[\\s]+", "");
 				startTaskWithUiLock(() -> base64TextArea.setText(base64));
-				showMessage(String.format("Opened Base64 text file: %s", file.getName()));
+				showMessage(String.format("Opened Base64 text file: '%s'", file.getAbsolutePath()));
 			}
 		} catch (FileOperationException e) {
 			dialogService.showErrorDialog(getWindow(), e);

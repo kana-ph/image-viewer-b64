@@ -8,13 +8,18 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private static final double APP_WIDTH = 650.0;
+    private static final double APP_HEIGHT = 600.0;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-form.fxml"));
         Parent root = loader.load();
         setUserAgentStylesheet(STYLESHEET_MODENA);
         primaryStage.setTitle("kana0011/image-viewer-b64");
-        primaryStage.setScene(new Scene(root, 650, 600));
+        primaryStage.setScene(new Scene(root, APP_WIDTH, APP_HEIGHT));
+        primaryStage.setMinWidth(APP_WIDTH);
+        primaryStage.setMinHeight(APP_HEIGHT);
         primaryStage.show();
     }
 

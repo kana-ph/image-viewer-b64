@@ -1,5 +1,6 @@
 package ph.kana.b64image.file;
 
+import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -29,15 +30,8 @@ public class FileService {
 	private FileService() {	}
 
 	public File createTempFile(InputStream inputStream) throws FileOperationException {
-		MimeTypes mimeRepository = TikaConfig
-			.getDefaultConfig()
-			.getMimeRepository();
 		try {
-			MediaType mediaType = mimeRepository
-				.detect(inputStream, new Metadata());
-			MimeType mimeType = mimeRepository
-				.forName(mediaType.toString());
-
+			MimeType mimeType = determineContentType(inputStream);
 			String extension = mimeType.getExtension();
 			File file = File.createTempFile("ivb64-", extension);
 			file.deleteOnExit();
@@ -67,17 +61,23 @@ public class FileService {
 	}
 
 	public boolean validBase64File(File file) throws FileOperationException {
-		Pattern base64Pattern = Pattern
-			.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+		String base64Type = MimeTypes.PLAIN_TEXT;
 		try {
-			String fileContent = Files
-				.readAllLines(file.toPath())
-				.stream()
-				.collect(Collectors.joining());
-			return base64Pattern
-				.matcher(fileContent)
-				.matches();
-		} catch (IOException e) {
+			InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+			MimeType mimeType = determineContentType(inputStream);
+
+			if (base64Type.equals(mimeType.getName())) {
+				Pattern base64Pattern = Pattern
+					.compile("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$");
+				Tika tika = new Tika();
+				String fileContent = tika.parseToString(inputStream, new Metadata());
+
+				return base64Pattern
+					.matcher(fileContent.trim())
+					.matches();
+			}
+			return false;
+		} catch (IOException | TikaException e) {
 			throw new FileOperationException("Cannot read file: " + file.getAbsolutePath(), e);
 		}
 	}
@@ -116,5 +116,16 @@ public class FileService {
 				return  fileMetadata;
 			})
 			.collect(Collectors.toList());
+	}
+
+	private MimeType determineContentType(InputStream inputStream) throws IOException, MimeTypeException {
+		MimeTypes mimeRepository = TikaConfig
+			.getDefaultConfig()
+			.getMimeRepository();
+
+		MediaType mediaType = mimeRepository
+			.detect(inputStream, new Metadata());
+		return mimeRepository
+			.forName(mediaType.toString());
 	}
 }

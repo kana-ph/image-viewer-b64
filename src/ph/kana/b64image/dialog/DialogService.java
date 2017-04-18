@@ -1,11 +1,14 @@
 package ph.kana.b64image.dialog;
 
 
+import javafx.event.*;
+import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.stage.*;
@@ -85,6 +88,29 @@ public final class DialogService {
 
 		Stage metadataDialog = createDialog(fxmlFile, title, parent, initialize);
 		metadataDialog.showAndWait();
+	}
+
+	public boolean promptTextFileDrop(Window parent) {
+		Dialog<ButtonType> promptDialog = new Dialog<>();
+		promptDialog.initOwner(parent);
+		promptDialog.initModality(Modality.APPLICATION_MODAL);
+		promptDialog.initStyle(StageStyle.UNIFIED);
+		promptDialog.setTitle(DIALOG_TITLE + " - File Dropped");
+		promptDialog.setContentText("Dropped file is a valid Base64 Text File.\nWhat to do?");
+
+		List<ButtonType> buttons = promptDialog
+			.getDialogPane()
+			.getButtonTypes();
+		ButtonType plainTextButton = new ButtonType("Open as Base64", ButtonData.LEFT);
+		buttons.add(plainTextButton);
+		ButtonType convertButton = new ButtonType("Convert Text File to Base64", ButtonData.RIGHT);
+		buttons.add(convertButton);
+
+		ButtonType clicked = promptDialog
+			.showAndWait()
+			.orElse(null);
+
+		return plainTextButton.equals(clicked);
 	}
 
 	private <C> Stage createDialog(String fxmlFile, String title, Window parent, Consumer<C> controllerAction) {

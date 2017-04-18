@@ -9,8 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.Pane;
-import javafx.stage.Window;
 import javafx.util.Duration;
 import ph.kana.b64image.dialog.DialogService;
 import ph.kana.b64image.dialog.DndInitializer;
@@ -24,7 +22,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class MainFormController extends AbstractController {
@@ -230,7 +227,8 @@ public class MainFormController extends AbstractController {
 
 	private void openDroppedFile(File file) {
 		try {
-			if (fileService.validBase64File(file)) {
+			boolean validBase64 = fileService.validBase64File(file);
+			if (validBase64 && dialogService.promptTextFileDrop(getWindow())) {
 				showBase64File(file);
 			} else {
 				convertToBase64(file);

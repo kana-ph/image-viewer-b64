@@ -1,33 +1,24 @@
 package ph.kana.b64image.dialog;
 
 
-import javafx.event.*;
-import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.stage.*;
-
-import static javafx.stage.FileChooser.ExtensionFilter;
-
-import javafx.stage.Window;
 import ph.kana.b64image.MetadataDialogController;
 import ph.kana.b64image.file.FileMetadata;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static javafx.stage.FileChooser.ExtensionFilter;
 
 public final class DialogService {
 	private static DialogService instance = new DialogService();

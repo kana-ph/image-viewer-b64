@@ -16,7 +16,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-form.fxml"));
         Parent root = loader.load();
         setUserAgentStylesheet(STYLESHEET_MODENA);
-        primaryStage.setTitle("kana0011/image-viewer-b64");
+        primaryStage.setTitle("kana-ph/image-viewer-b64");
         primaryStage.setScene(new Scene(root, APP_WIDTH, APP_HEIGHT));
         primaryStage.setMinWidth(APP_WIDTH);
         primaryStage.setMinHeight(APP_HEIGHT);

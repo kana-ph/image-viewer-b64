@@ -79,3 +79,9 @@ hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,intellij+iml
 
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build

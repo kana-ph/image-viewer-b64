@@ -4,10 +4,10 @@ import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import ph.kana.b64image.dialog.DialogService;
 
-import java.awt.*;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static ph.kana.b64image.file.HostServicesHolder.getHostServices;
 
 public class AboutDialogController extends AbstractController {
 
@@ -28,17 +28,12 @@ public class AboutDialogController extends AbstractController {
 	}
 
 	private void openGithub() throws URISyntaxException {
-		URI uri = new URI("https://github.com/kana0011/image-viewer-b64");
+		URI uri = new URI("https://github.com/kana-ph/image-viewer-b64");
 		openInBrowser(uri);
 	}
 
 	private void openInBrowser(URI uri) {
-		new Thread(() -> {
-			try {
-				Desktop desktop = Desktop.getDesktop();
-				desktop.browse(uri);
-			} catch (IOException e) { e.printStackTrace(System.err); }
-		}, "web-browser-launcher-thread")
-			.start();
+		new Thread(() -> getHostServices().showDocument(uri.toString()), "web-browser-launcher-thread")
+        .start();
 	}
 }

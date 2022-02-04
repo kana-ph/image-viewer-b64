@@ -198,7 +198,7 @@ public class MainFormController extends AbstractController {
 	}
 
 	private void startTaskWithUiLock(Runnable task) {
-		Task updateTextTask = new Task<Void>() {
+		Task<Void> updateTextTask = new Task<>() {
 			@Override
 			public Void call() {
 				task.run();

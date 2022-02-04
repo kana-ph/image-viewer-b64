@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import ph.kana.b64image.file.HostServicesHolder;
 
 public class Main extends Application {
 
@@ -20,6 +21,7 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, APP_WIDTH, APP_HEIGHT));
         primaryStage.setMinWidth(APP_WIDTH);
         primaryStage.setMinHeight(APP_HEIGHT);
+        HostServicesHolder.setHostServices(getHostServices());
         primaryStage.show();
     }
 

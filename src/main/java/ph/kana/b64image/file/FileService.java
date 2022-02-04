@@ -12,7 +12,6 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.SAXException;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -20,6 +19,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static ph.kana.b64image.file.HostServicesHolder.getHostServices;
 
 public class FileService {
 	private static FileService instance = new FileService();
@@ -44,12 +45,7 @@ public class FileService {
 	}
 
 	public void openToDesktop(File file) {
-		new Thread(() -> {
-			try {
-				Desktop desktop = Desktop.getDesktop();
-				desktop.open(file);
-			} catch (IOException e) { e.printStackTrace(System.err); }
-		}, "file-launcher-thread")
+		new Thread(() -> getHostServices().showDocument(file.toURI().toString()), "file-launcher-thread")
 			.start();
 	}
 
